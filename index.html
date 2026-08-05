@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Trivia corporativa de movilidad segura" />
+  <title>Trivia de la Movilidad</title>
+  <link rel="stylesheet" href="styles.css?v=20260804-4" />
+</head>
+<body>
+  <noscript>Esta aplicación necesita JavaScript habilitado.</noscript>
+
+  <main id="auth-view" class="auth-layout">
+    <section class="auth-hero">
+      <div class="brand-mark">TM</div>
+      <p class="eyebrow">Prevención participativa</p>
+      <h1>Trivia de la<br><span>Movilidad</span></h1>
+      <p class="hero-copy">Una pregunta al día para tomar mejores decisiones en el camino.</p>
+      <div class="hero-cards">
+        <div><strong>3</strong><span>categorías</span></div>
+        <div><strong>1</strong><span>trivia diaria</span></div>
+        <div><strong>$30.000</strong><span>gift card</span></div>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div class="tabs" role="tablist" aria-label="Opciones de acceso">
+          <button class="tab active" data-auth-tab="login">Ingresar</button>
+          <button class="tab" data-auth-tab="register">Registrarse</button>
+          <button class="tab" data-auth-tab="admin">Administrador</button>
+        </div>
+
+        <form id="login-form" class="auth-form" data-auth-form="login">
+          <label>Correo corporativo
+            <input id="login-username" type="text" inputmode="email" autocomplete="username" maxlength="120" placeholder="nombre.apellido@consalud.cl" required />
+          </label>
+          <label>Clave
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+          </label>
+          <button class="btn primary full" type="submit">Ingresar</button>
+        </form>
+
+        <form id="register-form" class="auth-form hidden" data-auth-form="register">
+          <label>Correo corporativo
+            <input id="register-username" type="text" inputmode="email" autocomplete="username" maxlength="120" placeholder="nombre.apellido@consalud.cl" required />
+            <span class="field-hint">Solo se permiten cuentas que terminen en @consalud.cl.</span>
+          </label>
+          <label>Clave
+            <input id="register-password" type="password" autocomplete="new-password" minlength="6" pattern="(?=.*[A-Z])(?=.*\d).{6,}" placeholder="Crea una clave segura" required />
+            <span class="field-hint">Mínimo 6 caracteres, una letra mayúscula y un número.</span>
+          </label>
+          <label>Sucursal
+            <input id="register-branch" autocomplete="organization" maxlength="80" placeholder="Ej.: Providencia" required />
+          </label>
+          <button class="btn primary full" type="submit">Crear cuenta</button>
+          <p class="privacy-note"><strong>No necesitas confirmar el correo.</strong> Tu correo corporativo quedará registrado como respaldo de la cuenta.</p>
+        </form>
+
+        <form id="admin-form" class="auth-form hidden" data-auth-form="admin">
+          <label>Usuario administrador
+            <input id="admin-username" autocomplete="username" placeholder="Usuario administrador" required />
+          </label>
+          <label>Clave
+            <input id="admin-password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+          </label>
+          <button class="btn primary full" type="submit">Ingresar como administrador</button>
+        </form>
+        <p id="auth-message" class="form-message" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <div id="app-view" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark small">TM</div>
+        <div><strong>Trivia</strong><span>Movilidad Segura</span></div>
+      </div>
+      <nav id="main-nav" class="nav-list" aria-label="Navegación principal">
+        <button class="nav-item active" data-view="dashboard">⌂ <span>Inicio</span></button>
+        <button class="nav-item user-only" data-view="trivia">? <span>Trivia diaria</span></button>
+        <button class="nav-item user-only" data-view="history">↻ <span>Mi historial</span></button>
+        <button class="nav-item admin-only hidden" data-view="admin">⚙ <span>Administración</span></button>
+        <button class="nav-item admin-only hidden" data-view="draw">★ <span>Sorteo de premio</span></button>
+      </nav>
+      <button id="logout-btn" class="nav-item logout">↪ <span>Cerrar sesión</span></button>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div>
+          <p id="page-kicker" class="eyebrow">Movilidad segura</p>
+          <h2 id="page-title">Inicio</h2>
+        </div>
+        <div class="user-chip">
+          <div id="user-initials" class="avatar">DG</div>
+          <div><strong id="user-name">Usuario</strong><span id="user-branch">Sucursal</span></div>
+        </div>
+      </header>
+
+      <div id="content" class="content" tabindex="-1"></div>
+
+      <nav id="mobile-nav" class="mobile-nav" aria-label="Navegación móvil">
+        <button class="active" data-view="dashboard">⌂<span>Inicio</span></button>
+        <button class="user-only" data-view="trivia">?<span>Trivia</span></button>
+        <button class="user-only" data-view="history">↻<span>Historial</span></button>
+        <button class="admin-only hidden" data-view="admin">⚙<span>Admin</span></button>
+        <button class="admin-only hidden" data-view="draw">★<span>Sorteo</span></button>
+      </nav>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    (() => {
+      const switchAuthTab = (name) => {
+        document.querySelectorAll('[data-auth-tab]').forEach(tab => {
+          tab.classList.toggle('active', tab.dataset.authTab === name);
+          tab.setAttribute('aria-selected', tab.dataset.authTab === name ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-auth-form]').forEach(form => {
+          form.classList.toggle('hidden', form.dataset.authForm !== name);
+        });
+        const message = document.querySelector('#auth-message');
+        if (message) { message.textContent = ''; message.className = 'form-message'; }
+      };
+      document.addEventListener('click', event => {
+        const tab = event.target.closest('[data-auth-tab]');
+        if (!tab) return;
+        event.preventDefault();
+        switchAuthTab(tab.dataset.authTab);
+      });
+      window.addEventListener('error', event => {
+        const message = document.querySelector('#auth-message');
+        if (!message || window.__TRIVIA_APP_READY__) return;
+        message.textContent = `Error al iniciar la aplicación: ${event.message || 'error desconocido'}`;
+        message.className = 'form-message error';
+      });
+      window.setTimeout(() => {
+        if (window.__TRIVIA_APP_READY__) return;
+        const message = document.querySelector('#auth-message');
+        if (message && !message.textContent) {
+          message.textContent = 'La aplicación no terminó de iniciar. Recarga la página con Ctrl + F5.';
+          message.className = 'form-message error';
+        }
+      }, 8000);
+    })();
+  </script>
+  <script src="supabase-lite.js?v=20260804-4"></script>
+  <script src="supabase-config.js?v=20260804-4"></script>
+  <script src="app.js?v=20260804-4"></script>
+</body>
+</html>
